@@ -52,9 +52,9 @@ Also, there are some assigning operators, but assigning string is not allowed (s
 ### 2. Basic Functions
 There are three basic functions.  
 ~~~
-bigint::size() // return size of bigint vector, which can be always represented as 2^n
-bigint::digit() // return the number of digits in decimal
-bigint::to_string() // return string converted from bigint value
+int bigint::size() // return size of bigint vector, which can be always represented as 2^n
+int bigint::digit() // return the number of digits in decimal
+std::string bigint::to_string() // return string converted from bigint value
 ~~~
 
 ### 3. Addition / Subtraction
@@ -75,10 +75,11 @@ The algorithm for subtraction is basically the same.
 The time complexity is O(n / log n), if n is the number of digits in decimal.
 
 ### 4. Multiplication
-I used Number Theoretic Transform algorithm for multiplication. The implementation is non-recursive.  
-The used modulus is following:  
+I used [Number Theoretic Transform](https://en.wikipedia.org/wiki/Discrete_Fourier_transform_(general)#Number-theoretic_transform) algorithm for multiplication. The implementation is non-recursive.  
+The used moduli is following:  
 - mod = 167772161, primitive root = 3, cycle = 2<sup>25</sup>  
 - mod = 469762049, primitive root = 3, cycle = 2<sup>26</sup>  
-We used Chinese Remainder Theorem like calculation to merge results in two moduli.  
+
+We used [Chinese Remainder Theorem](https://en.wikipedia.org/wiki/Chinese_remainder_theorem) to merge results in two moduli.  
 
 The time complexity is O(n), if n is the number of digits in decimal.  
