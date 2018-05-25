@@ -28,8 +28,8 @@ It stores numbers as a 10<sup>4</sup>-ary number. In this implementation, the nu
 In this library, we can hold up to 2<sup>27</sup> digits in decimal (in 10<sup>4</sup>-ary number, it is 2<sup>25</sup> digits).  
 So, the range of bigint x is, 0 ≤ x < 10<sup>2<sup>27</sup></sup>.  
 
-If the computer is x-bit, integer is stored as 10<sup>b</sup>-ary number and actually b=O(x). Since the computer is 64-bit, I chose b=4, so when the computer is 128-bit, the value of b will be 8 or 9.  
-So, if the number of digits in decimal is n, the number of digits in 10<sup>b</sup>-ary number will be O(n / log n).
+If the computer is x-bit, integer is stored as 10<sup>b</sup>-ary number and actually b=O(x). Since the computer is 64-bit, I chose b=4, and when the computer is 128-bit, the value of b will be 8 or 9.  
+Therefore, if the number of digits in decimal is n, the number of digits in 10<sup>b</sup>-ary number will be O(n / log n).
 
 ### Overview of Functions
 Although the content of bigint class is light (currently about 7KB), there are many functions in bigint class.  
@@ -77,8 +77,8 @@ The time complexity is O(n / log n), if n is the number of digits in decimal.
 ### 4. Multiplication
 I used Number Theoretic Transform algorithm for multiplication. The implementation is non-recursive.  
 The used modulus is following:  
-- mod = 167772161, primitive root = 3, cycle = 2<sup>25</sup>
-- mod = 469762049, primitive root = 3, cycle = 2<sup>26</sup>
+- mod = 167772161, primitive root = 3, cycle = 2<sup>25</sup>  
+- mod = 469762049, primitive root = 3, cycle = 2<sup>26</sup>  
 We used Chinese Remainder Theorem like calculation to merge results in two moduli.  
 
 The time complexity is O(n), if n is the number of digits in decimal.  
