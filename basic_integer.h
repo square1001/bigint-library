@@ -107,23 +107,32 @@ public:
 		basic_integer two = basic_integer({ 2 }) << b.a.size();
 		basic_integer pre;
 		int lim = std::min(preci, 3);
+		int blim = std::min(int(b.a.size()), 6);
 		t <<= lim;
 		while (pre != t) {
+			basic_integer rb = b >> (b.a.size() - blim);
+			if (blim != b.a.size()) rb += basic_integer({ 1 });
 			pre = t;
-			t *= (basic_integer({ 2 }) << (b.a.size() + lim)) - b * t;
-			t.a = std::vector<int>(t.a.begin() + lim + b.a.size(), t.a.end());
+			t *= (basic_integer({ 2 }) << (blim + lim)) - rb * t;
+			t.a = std::vector<int>(t.a.begin() + lim + blim, t.a.end());
 		}
 		if (lim != preci) {
 			pre = basic_integer();
 			while (pre != t) {
+				basic_integer rb = b >> (b.a.size() - blim);
+				if (blim != b.a.size()) rb += basic_integer({ 1 });
 				pre = t;
-				t *= (basic_integer({ 2 }) << (b.a.size() + lim)) - b * t;
-				t.a = std::vector<int>(t.a.begin() + lim + b.a.size(), t.a.end());
+				t *= (basic_integer({ 2 }) << (blim + lim)) - rb * t;
+				t.a = std::vector<int>(t.a.begin() + lim + blim, t.a.end());
 				int next_lim = std::min(lim * 2 + 1, preci);
 				if (next_lim != lim) t <<= next_lim - lim;
+				int next_blim = std::min(blim * 2 + 1, int(b.a.size()));
 				lim = next_lim;
+				blim = next_blim;
+				cout << lim << ' ';
 			}
 		}
+		cout << endl;
 		basic_integer ans = (*this) * t;
 		ans.a = std::vector<int>(ans.a.begin() + a.size(), ans.a.end());
 		while ((ans + basic_integer({ 1 })) * b <= (*this)) {
