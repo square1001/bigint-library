@@ -1,15 +1,22 @@
 # --- Made a big update on November 18th, 2018. API is completely different, so the reliability of things I wrote under that is pretty low. ---
 
 # bigint-library
-C++ Library for Large Integers
+C++ Library for Large Integers  
 
 ## Overview
-This is a C++ library for large integers. I made this C++ code library because there are no built-in large integers library (like BigInteger in Java) in C++. But the reason is not only this: I want to simplify (?) the fast algorithm of arithmetic operations.  
-In this version, **integer is restricted to be non-negative.** We will add some features because it is still in development. Though, you still can use this version because it supports addition, subtraction, and multiplication.  
+This is a C++ library for large integers. I made this C++ code library because there are no built-in large integers library (like BigInteger in Java) in C++.  
+In this version, **integer is restricted to be non-negative.** We will add some features because it is still in development. Though, you still can use this version because it supports addition, subtraction, and multiplication, and even division!  
+
+In this implementation, arithmetic operations especially for multiplication and division **run in a rapid time complexities**!  
+
+* Addition: O(n) time complexity  
+* Subtraction: O(n) time complexity  
+* Multiplication: O(n log n) time complexity  
+* Division: O(n log n) time complexity, about 10x slower than multiplication  
 
 ## How to use?
 The class name of this library is "bigint".  
-How to use? First, we need to put "bigint.h" as a header file, and include this file in the source code.  
+In order to use "bigint", we need to include "bigint.h" in your source code.  
 
 The example of code is like this:  
 ~~~
@@ -30,15 +37,13 @@ It stores numbers as a 10<sup>4</sup>-ary number. In this implementation, the nu
 In this library, we can hold up to 2<sup>27</sup> digits in decimal (in 10<sup>4</sup>-ary number, it is 2<sup>25</sup> digits).  
 So, the range of bigint x is, 0 ≤ x < 10<sup>2<sup>27</sup></sup>.  
 
-If the computer is x-bit, integer is stored as 10<sup>b</sup>-ary number and actually b=O(x). Since the computer is 64-bit, I chose b=4, and when the computer is 128-bit, the value of b will be 8 or 9.  
-Therefore, if the number of digits in decimal is n, the number of digits in 10<sup>b</sup>-ary number will be O(n / log n).
-
 ### Overview of Functions
 Although the content of bigint class is light (currently about 7KB), there are many functions in bigint class.  
  1. Constructors / Assigning Operators
  2. Basic Functions
  3. Addition / Subtraction
  4. Multiplication
+ 5. Division
 
 ### 1. Constructors / Assigning Operators
 There are four constructors there, like following:  
