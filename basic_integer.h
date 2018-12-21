@@ -1,3 +1,6 @@
+#ifndef __CLASS_BASICINTEGER
+#define __CLASS_BASICINTEGER
+
 #include <vector>
 #include "ntt.h"
 
@@ -36,8 +39,8 @@ public:
 			}
 		}
 		while (a.back() >= base) {
-			a.push_back(a.back() / 10);
-			a[a.size() - 2] %= 10;
+			a.push_back(a.back() / base);
+			a[a.size() - 2] %= base;
 		}
 		return *this;
 	}
@@ -54,24 +57,17 @@ public:
 	bool operator<=(const basic_integer& b) const { return !((*this) > b); }
 	bool operator>=(const basic_integer& b) const { return !((*this) < b); }
 	basic_integer& operator<<=(const uint32_t x) {
-		int s = a.size(), sz = s;;
-		while (s < a.size() + x) s <<= 1;
-		a.resize(s);
-		for (int i = sz - 1; i >= 0; --i) {
-			a[i + x] = a[i];
-			a[i] = 0;
+		if (a.back() >= 1 || a.size() >= 2) {
+			std::vector<int> v(x, 0);
+			a.insert(a.begin(), v.begin(), v.end());
 		}
-		return (*this).resize();
+		return (*this);
 	}
 	basic_integer& operator>>=(const uint32_t x) {
+		if (x == 0) return *this;
 		if (x > a.size()) a = { 0 };
-		else {
-			a = std::vector<int>(a.begin() + x, a.end());
-			int s = 1;
-			while (s < a.size()) s *= 2;
-			a.resize(s);
-		}
-		return (*this).resize();
+		else a = std::vector<int>(a.begin() + x, a.end());
+		return (*this);
 	}
 	basic_integer& operator+=(const basic_integer& b) {
 		if (a.size() < b.a.size()) a.resize(b.a.size(), 0);
@@ -129,16 +125,23 @@ public:
 				int next_blim = std::min(blim * 2 + 1, int(b.a.size()));
 				lim = next_lim;
 				blim = next_blim;
-				cout << lim << ' ';
 			}
 		}
-		cout << endl;
 		basic_integer ans = (*this) * t;
 		ans.a = std::vector<int>(ans.a.begin() + a.size(), ans.a.end());
 		while ((ans + basic_integer({ 1 })) * b <= (*this)) {
 			ans += basic_integer({ 1 });
 		}
 		(*this) = ans.resize();
+		return *this;
+	}
+	basic_integer& divide_by_2() {
+		for (int i = a.size() - 1; i >= 0; --i) {
+			int carry = a[i] % 2;
+			a[i] /= 2;
+			if (i != 0) a[i - 1] += carry * base;
+		}
+		if (a.size() >= 2 && a.back() == 0) a.pop_back();
 		return *this;
 	}
 	basic_integer operator<<(int x) const { return basic_integer(*this) <<= x; }
@@ -148,3 +151,5 @@ public:
 	basic_integer operator*(const basic_integer& b) const { return basic_integer(*this) *= b; }
 	basic_integer operator/(const basic_integer& b) const { return basic_integer(*this) /= b; }
 };
+
+#endif
