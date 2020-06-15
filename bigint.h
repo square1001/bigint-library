@@ -5,8 +5,12 @@
 #include <iostream>
 #include "basic-int.h"
 
-constexpr std::size_t base_digit = 1;
-constexpr std::uint32_t base_number = 10;
+// (digit / base_digit) * base_number^2 <= 1811939329 * 2013265921 = 3647915701995307009
+// (digit / base_digit) < min(2^27, 2^26) = 67108864
+// ---> max_digit = min(1823957850, 335544320) = 335544320
+
+constexpr std::size_t base_digit = 5;
+constexpr std::uint32_t base_number = 100000;
 
 class bigint : private basic_int<base_number> {
 private:
@@ -43,12 +47,12 @@ public:
 		}
 		std::size_t str_digits = str.size() - initial;
 		capacity = 1;
-		while(capacity < str_digits) {
+		while(capacity * base_digit < str_digits) {
 			capacity *= 2;
 		}
 		digit = std::vector<std::uint32_t>(capacity, 0);
-		for(std::size_t i = 0; i < str_digits - base_digit; i += base_digit) {
-			digit[i] = std::stoi(str.substr(str.size() - i - base_digit, base_digit));
+		for(std::size_t i = 0; (i + 1) * base_digit < str_digits; ++i) {
+			digit[i] = std::stoi(str.substr(str.size() - i * base_digit - base_digit, base_digit));
 		}
 		digit[(str_digits - 1) / base_digit] = std::stoi(str.substr(initial, (str.size() - (str_digits - 1) / base_digit * base_digit) - initial));
 	}
@@ -63,18 +67,63 @@ public:
 	}
 
 	// ----- #2. Operators ----- //
-	bool operator==(const bigint& b) const noexcept { return sign == b.sign && basic_int<base_number>::operator==(b); }
-	bool operator!=(const bigint& b) const noexcept { return sign != b.sign || basic_int<base_number>::operator!=(b); }
-	bool operator<(const bigint& b) const noexcept { return sign != b.sign ? sign : basic_int<base_number>::operator<(b); }
-	bool operator>(const bigint& b) const noexcept { return sign != b.sign ? !sign : basic_int<base_number>::operator>(b); }
-	bool operator<=(const bigint& b) const noexcept { return sign != b.sign ? sign : basic_int<base_number>::operator<=(b); }
-	bool operator>=(const bigint& b) const noexcept { return sign != b.sign ? !sign : basic_int<base_number>::operator>=(b); }
-	bigint& operator+=(const bigint& b) { basic_int<base_number>::operator+=(b); return *this; }
-	bigint& operator-=(const bigint& b) { basic_int<base_number>::operator-=(b); return *this; }
-	bigint& operator*=(const bigint& b) { basic_int<base_number>::operator*=(b); return *this; }
+	bool operator==(const bigint& b) const noexcept { return sign == b.sign && basic_int::operator==(b); }
+	bool operator!=(const bigint& b) const noexcept { return sign != b.sign || basic_int::operator!=(b); }
+	bool operator<(const bigint& b) const noexcept { return sign != b.sign ? sign : basic_int::operator<(b); }
+	bool operator>(const bigint& b) const noexcept { return sign != b.sign ? !sign : basic_int::operator>(b); }
+	bool operator<=(const bigint& b) const noexcept { return sign != b.sign ? sign : basic_int::operator<=(b); }
+	bool operator>=(const bigint& b) const noexcept { return sign != b.sign ? !sign : basic_int::operator>=(b); }
+	bigint& operator+=(const bigint& b) {
+		if(sign == b.sign) {
+			basic_int::operator+=(b);
+		}
+		else if(basic_int(*this) >= basic_int(b)) {
+			basic_int::operator-=(b);
+			if(sign && basic_int(*this) == basic_int()) sign = false;
+		}
+		else {
+			sign = !sign;
+			(*this) = b - (*this);
+		}
+		return *this;
+	}
+	bigint& operator-=(const bigint& b) {
+		if(sign != b.sign) {
+			basic_int::operator+=(b);
+		}
+		else if(basic_int(*this) >= basic_int(b)) {
+			basic_int::operator-=(b);
+			if(sign && basic_int(*this) == basic_int()) sign = false;
+		}
+		else {
+			sign = !sign;
+			(*this) += b;
+			sign = !sign;
+		}
+		return *this;
+	}
+	bigint& operator*=(const bigint& b) {
+		basic_int::operator*=(b);
+		if(b.sign) sign = !sign;
+		if(sign && basic_int(*this) == basic_int()) sign = false;
+		return *this;
+	}
+	bigint& operator/=(const bigint& b) {
+		basic_int::operator/=(b);
+		if(b.sign) sign = !sign;
+		if(sign && basic_int(*this) == basic_int()) sign = false;
+		return *this;
+	}
+	bigint operator%=(const bigint& b) {
+		bigint itself(*this);
+		(*this) = itself - itself / b * b;
+		return *this;
+	}
 	bigint operator+(const bigint& b) const { return bigint(*this) += b; }
 	bigint operator-(const bigint& b) const { return bigint(*this) -= b; }
 	bigint operator*(const bigint& b) const { return bigint(*this) *= b; }
+	bigint operator/(const bigint& b) const { return bigint(*this) /= b; }
+	bigint operator%(const bigint& b) const { return bigint(*this) %= b; }
 	friend std::istream& operator>>(std::istream& is, bigint& x) { std::string s; is >> s; x = bigint(s); return is; }
 	friend std::ostream& operator<<(std::ostream& os, const bigint& x) { os << x.to_string(); return os; }
 };
