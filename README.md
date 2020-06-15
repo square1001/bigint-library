@@ -1,5 +1,3 @@
-# --- Made a big update on November 18th, 2018. API is completely different, so the reliability of things I wrote under that is pretty low. ---
-
 # bigint-library
 C++ Library for Large Integers  
 
